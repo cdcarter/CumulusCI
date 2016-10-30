@@ -171,6 +171,13 @@ tasks:
         class_path: cumulusci.tasks.salesforce.PackageUpload
         options:
             production: True
+    request_org:
+        description: creates a signup request for a new org
+        class_path: cumulusci.signup_request.dx.CreateRequest
+    register_org:
+        description: registers a signuprequest as an org
+        class_path: cumulusci.signup_request.dx.RegisterRequest
+
 
 
 flows:
@@ -197,6 +204,11 @@ flows:
 
 project:
     name:
+    signup:
+      domain_prefix: base
+      should_connect_to_hub: True
+      template: Partner Developer
+      suppress_emails: True
     package:
         name:
         name_managed:
@@ -213,6 +225,14 @@ project:
         namematch: '%_TEST%'
     apexdoc:
         url: https://github.com/SalesforceFoundation/ApexDoc/releases/download/1.7/apexdoc.jar
-        homepage: 
-        banner: 
+        homepage:
+        banner:
     dependencies:
+
+developer:
+  first_name:
+  last_name:
+  email:
+  country:
+  preferred_language:
+  signup_source: cumulusci2
