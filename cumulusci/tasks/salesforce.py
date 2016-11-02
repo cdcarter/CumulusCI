@@ -1,6 +1,7 @@
 import base64
 import logging
 import os
+import time
 import tempfile
 import zipfile
 
@@ -80,9 +81,9 @@ class BaseSalesforceBulkApiTask(BaseSalesforceTask):
         self.bulk = self._init_api()
 
     def _init_api(self):
-        return Salesforce(
-            instance=self.org_config.instance_url.replace('https://', ''),
-            session_id=self.org_config.access_token,
+        return SalesforceBulk(
+            host=self.org_config.instance_url.replace('https://', ''),
+            sessionId=self.org_config.access_token,
         )
 
 class GetInstalledPackages(BaseSalesforceMetadataApiTask):
