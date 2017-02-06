@@ -16,7 +16,6 @@ import zipfile
 
 from simple_salesforce import Salesforce
 from simple_salesforce import SalesforceGeneralError
-from salesforce_bulk import SalesforceBulk
 import xmltodict
 
 from cumulusci.core.exceptions import ApexTestException
@@ -97,17 +96,6 @@ class BaseSalesforceToolingApiTask(BaseSalesforceApiTask):
         obj.base_url = obj.base_url.replace('/sobjects/', '/tooling/sobjects/')
         return obj
 
-class BaseSalesforceBulkApiTask(BaseSalesforceTask):
-    name = 'BaseSalesforceBulkApiTask'
-
-    def _init_task(self):
-        self.bulk = self._init_api()
-
-    def _init_api(self):
-        return SalesforceBulk(
-            host=self.org_config.instance_url.replace('https://', ''),
-            sessionId=self.org_config.access_token,
-        )
 
 class GetInstalledPackages(BaseSalesforceMetadataApiTask):
     api_class = ApiRetrieveInstalledPackages
@@ -1572,28 +1560,3 @@ class RunApexTestsDebug(RunApexTests):
         json_output = self.options['json_output']
         with io.open(json_output, mode='w', encoding='utf-8') as f:
             f.write(str(json.dumps(test_results)))
-
-class SOQLQuery(BaseSalesforceBulkApiTask):
-    name = 'SOQLQuery'
-
-    task_options = {
-        'object' : {'required':True, 'description':'The object to query'},
-        'query' : {'required':True, 'description':'A valid bulk SOQL query for the object'},
-        'result_file' : {'required':True,'description':'The name of the csv file to write the results to'}
-    }
-
-    def _run_task(self):
-        self.logger.info('Creating bulk job for: {object}'.format(**self.options))
-        job = self.bulk.create_query_job(self.options['object'], contentType='CSV')
-        self.logger.info('Job id: {0}'.format(job))
-        self.logger.info('Submitting query: {query}'.format(**self.options))
-        batch = self.bulk.query(job,self.options['query'])
-        self.logger.info('Batch id: {0}'.format(batch))
-        self.bulk.wait_for_batch(job,batch)
-        self.logger.info('Batch {0} finished'.format(batch))
-        self.bulk.close_job(job)
-        self.logger.info('Job {0} closed'.format(job))
-        with open(self.options['result_file'],"w") as result_file:
-            for row in self.bulk.get_batch_result_iter(job,batch):
-                result_file.write(row+'\n')
-        self.logger.info('Wrote results to: {result_file}'.format(**self.options))
