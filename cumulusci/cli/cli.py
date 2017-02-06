@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import json
 import os
 import sys
@@ -31,7 +32,7 @@ from cumulusci.core.exceptions import TaskRequiresSalesforceOrg
 from cumulusci.core.utils import import_class
 from cumulusci.utils import doc_task
 from cumulusci.oauth.salesforce import CaptureSalesforceOAuth
-from logger import init_logger
+from .logger import init_logger
 
 
 def pretty_dict(data):
