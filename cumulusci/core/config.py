@@ -1,3 +1,4 @@
+from builtins import object
 import base64
 import datetime
 import logging
@@ -88,7 +89,7 @@ class BaseTaskFlowConfig(BaseConfig):
     def list_tasks(self):
         """ Returns a list of task info dictionaries with keys 'name' and 'description' """
         tasks = []
-        for task in self.tasks.keys():
+        for task in list(self.tasks.keys()):
             task_info = self.tasks[task]
             if not task_info:
                 task_info = {}

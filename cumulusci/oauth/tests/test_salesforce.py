@@ -1,9 +1,11 @@
 from __future__ import print_function
-import httplib
+from future import standard_library
+standard_library.install_aliases()
+import http.client
 import threading
 import time
 import unittest
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 
 import mock
 import responses
@@ -38,7 +40,7 @@ class TestCaptureSalesforceOAuth(unittest.TestCase):
         responses.add(
             responses.GET,
             'https://login.salesforce.com/services/oauth2/authorize',
-            status=httplib.OK,
+            status=http.client.OK,
         )
 
         # mock response for SalesforceOAuth2.get_token()
@@ -56,7 +58,7 @@ class TestCaptureSalesforceOAuth(unittest.TestCase):
         responses.add(
             responses.POST,
             'https://login.salesforce.com/services/oauth2/token',
-            status=httplib.OK,
+            status=http.client.OK,
             json=expected_response,
         )
 
@@ -73,7 +75,7 @@ class TestCaptureSalesforceOAuth(unittest.TestCase):
             time.sleep(0.01)
 
         # simulate callback from browser
-        response = urllib2.urlopen(self.callback_url + '?code=123')
+        response = urllib.request.urlopen(self.callback_url + '?code=123')
 
         # wait for thread to complete
         t.join()
@@ -89,7 +91,7 @@ class TestCaptureSalesforceOAuth(unittest.TestCase):
         responses.add(
             responses.GET,
             'https://login.salesforce.com/services/oauth2/authorize',
-            status=httplib.BAD_REQUEST,
+            status=http.client.BAD_REQUEST,
         )
 
         # create CaptureSalesforceOAuth instance

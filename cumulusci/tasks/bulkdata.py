@@ -1,3 +1,8 @@
+from __future__ import division
+from future import standard_library
+standard_library.install_aliases()
+from builtins import range
+from past.utils import old_div
 from cumulusci.tasks.salesforce import BaseSalesforceBulkApiTask
 
 import csv
@@ -19,7 +24,7 @@ from sqlalchemy import Table
 from sqlalchemy import text
 from sqlalchemy import types
 from sqlalchemy import event
-from StringIO import StringIO
+from io import StringIO
 
 # Create a custom sqlalchemy field type for sqlite datetime fields which are stored as integer of epoch time
 class EpochType(types.TypeDecorator):
@@ -28,10 +33,10 @@ class EpochType(types.TypeDecorator):
     epoch = datetime.datetime(1970, 1, 1, 0, 0, 0)
 
     def process_bind_param(self, value, dialect):
-        return (value / 1000 - self.epoch).total_seconds()
+        return (old_div(value, 1000) - self.epoch).total_seconds()
 
     def process_result_value(self, value, dialect):
-        return self.epoch + datetime.timedelta(seconds=value / 1000)
+        return self.epoch + datetime.timedelta(seconds=old_div(value, 1000))
 
 # Listen for sqlalchemy column_reflect event and map datetime fields to EpochType
 @event.listens_for(Table, "column_reflect")
@@ -130,7 +135,7 @@ class LoadData(BaseSalesforceBulkApiTask):
         self._init_mapping()
         self._init_db()
 
-        for name, mapping in self.mapping.items():
+        for name, mapping in list(self.mapping.items()):
             self.logger.info('Running Job: {}'.format(name))
             rows = self._get_batches(mapping)
             res = self._upload_batches(mapping, rows)
@@ -221,7 +226,7 @@ class LoadData(BaseSalesforceBulkApiTask):
             del fields['Id']
 
         # Build the list of fields to import
-        import_fields = fields.keys() + static.keys() + lookups.keys()
+        import_fields = list(fields.keys()) + list(static.keys()) + list(lookups.keys())
         
         if record_type:
             import_fields.append('RecordTypeId')
@@ -240,11 +245,11 @@ class LoadData(BaseSalesforceBulkApiTask):
 
             # Get the row data from the mapping and database values
             csv_row = {}
-            for key, value in fields.items():
+            for key, value in list(fields.items()):
                 csv_row[key] = getattr(row, value)
-            for key, value in static.items():
+            for key, value in list(static.items()):
                 csv_row[key] = value
-            for key, lookup in lookups.items():
+            for key, lookup in list(lookups.items()):
                 lookup_table = lookup['table']
                 kwargs = {lookup['join_field']: getattr(row, lookup['key_field'])}
                 try:
@@ -256,7 +261,7 @@ class LoadData(BaseSalesforceBulkApiTask):
                 csv_row['RecordTypeId'] = record_type_id 
 
             # utf-8 encode row values
-            for key, value in csv_row.items():
+            for key, value in list(csv_row.items()):
                 if value:
                     if isinstance(value, datetime.datetime):
                         csv_row[key] = value.isoformat()
@@ -300,7 +305,7 @@ class LoadData(BaseSalesforceBulkApiTask):
 
         # Loop through mappings and reflect each referenced table
         self.tables = {}
-        for name, mapping in self.mapping.items():
+        for name, mapping in list(self.mapping.items()):
             if 'table' in mapping and mapping['table'] not in self.tables:
                 self.tables[mapping['table']] = self.base.classes[mapping['table']]
 

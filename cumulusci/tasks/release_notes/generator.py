@@ -1,4 +1,7 @@
-import httplib
+from future import standard_library
+standard_library.install_aliases()
+from builtins import object
+import http.client
 import re
 import os
 import requests

@@ -1,4 +1,6 @@
-import httplib
+from future import standard_library
+standard_library.install_aliases()
+import http.client
 import os
 import unittest
 
@@ -174,7 +176,7 @@ class TestGithubIssuesParser(unittest.TestCase, GithubApiTestMixin):
             method=responses.GET,
             url=api_url,
             json=expected_response,
-            status=httplib.NOT_FOUND,
+            status=http.client.NOT_FOUND,
         )
         generator = self._create_generator()
         parser = GithubIssuesParser(generator, self.title)

@@ -1,3 +1,5 @@
+from builtins import str
+from builtins import object
 import re
 import os
 
@@ -58,7 +60,7 @@ class ChangeNotesLinesParser(BaseChangeNotesParser):
 
     def _process_line(self, line):
         try:
-            line = unicode(line, 'utf-8')
+            line = str(line, 'utf-8')
         except TypeError:
             pass
         return line.rstrip()

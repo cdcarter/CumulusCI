@@ -1,3 +1,4 @@
+from builtins import chr
 import base64
 import json
 import os
@@ -49,11 +50,11 @@ class BaseProjectKeychain(BaseConfig):
             self.set_connected_app(connected_app)
 
         if orgs:
-            for org_name, org_config in orgs.items():
+            for org_name, org_config in list(orgs.items()):
                 self.set_org(org_name, org_config)
 
         if services:
-            for service_name, service_config in services.items():
+            for service_name, service_config in list(services.items()):
                 self.set_service(service_name, service_config)
 
     def set_connected_app(self, app_config, project=False):
@@ -110,7 +111,7 @@ class BaseProjectKeychain(BaseConfig):
         raise OrgNotFound('Org named {} was not found in keychain'.format(name))
 
     def list_orgs(self):
-        orgs = self.orgs.keys()
+        orgs = list(self.orgs.keys())
         orgs.sort()
         return orgs
 
@@ -133,7 +134,7 @@ class BaseProjectKeychain(BaseConfig):
         raise ServiceNotConfigured('Service named {} is not configured for this project'.format(name))
 
     def list_services(self):
-        services = self.services.keys()
+        services = list(self.services.keys())
         services.sort()
         return services
 
@@ -155,7 +156,7 @@ class EnvironmentProjectKeychain(BaseProjectKeychain):
             self.app = ConnectedAppOAuthConfig(json.loads(app))
 
     def _load_keychain_orgs(self):
-        for key, value in os.environ.items():
+        for key, value in list(os.environ.items()):
             if key.startswith(self.org_var_prefix):
                 org_config = json.loads(value)
                 if org_config.get('scratch'):
@@ -164,7 +165,7 @@ class EnvironmentProjectKeychain(BaseProjectKeychain):
                     self.orgs[key[len(self.org_var_prefix):]] = OrgConfig(json.loads(value))
 
     def _load_keychain_services(self):
-        for key, value in os.environ.items():
+        for key, value in list(os.environ.items()):
             if key.startswith(self.service_var_prefix):
                 self.services[key[len(self.service_var_prefix):]] = ServiceConfig(json.loads(value))
 

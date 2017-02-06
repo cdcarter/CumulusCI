@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+from builtins import object
 import json
 import os
 import sys
@@ -550,7 +551,7 @@ def task_list(config):
 def task_doc(config):
     config_src = config.global_config
     
-    for name, options in config_src.tasks.items():
+    for name, options in list(config_src.tasks.items()):
         task_config = TaskConfig(options)
         doc = doc_task(name, task_config)
         click.echo(doc)
@@ -580,7 +581,7 @@ def task_info(config, task_name):
     if default_options:
         click.echo('')
         click.echo('Default Option Values')
-        for key, value in default_options.items():
+        for key, value in list(default_options.items()):
             click.echo('    {}: {}'.format(key, value))
 
     # Task options
@@ -589,7 +590,7 @@ def task_info(config, task_name):
         click.echo('')
         data = []
         headers = ['Option', 'Required', 'Description']
-        for key, option in task_options.items():
+        for key, option in list(task_options.items()):
             if option.get('required'):
                 data.append((key, '*', option.get('description')))
             else:

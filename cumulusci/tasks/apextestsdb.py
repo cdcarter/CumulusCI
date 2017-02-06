@@ -1,6 +1,8 @@
 """ Classes for interacting with the SFDO apextestsdb web app """
 
-import httplib
+from future import standard_library
+standard_library.install_aliases()
+import http.client
 import json
 
 import requests
@@ -79,7 +81,7 @@ class ApextestsdbUpload(BaseApextestsdbTask):
             'user': self.apextestsdb_config.user_id,
         }
         response = requests.post(self.upload_url, data=payload)
-        if response.status_code >= httplib.BAD_REQUEST:
+        if response.status_code >= http.client.BAD_REQUEST:
             raise ApextestsdbError('{}: {}'.format(
                 response.status_code,
                 response.content,

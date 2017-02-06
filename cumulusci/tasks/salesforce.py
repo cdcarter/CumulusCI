@@ -1,3 +1,4 @@
+from builtins import str
 import base64
 import cgi
 import datetime
@@ -673,7 +674,7 @@ class UninstallPackagedIncremental(UninstallPackaged):
             master_items[md_type['name']] = []
             if 'members' not in md_type:
                 continue
-            if isinstance(md_type['members'], unicode):
+            if isinstance(md_type['members'], str):
                 master_items[md_type['name']].append(md_type['members'])
             else:
                 for item in md_type['members']:
@@ -683,13 +684,13 @@ class UninstallPackagedIncremental(UninstallPackaged):
             compare_items[md_type['name']] = []
             if 'members' not in md_type:
                 continue
-            if isinstance(md_type['members'], unicode):
+            if isinstance(md_type['members'], str):
                 compare_items[md_type['name']].append(md_type['members'])
             else:
                 for item in md_type['members']:
                     compare_items[md_type['name']].append(item)
 
-        for md_type, members in compare_items.items():
+        for md_type, members in list(compare_items.items()):
             if md_type not in master_items:
                 delete[md_type] = members
                 continue
@@ -702,7 +703,7 @@ class UninstallPackagedIncremental(UninstallPackaged):
 
         if delete:
             self.logger.info('Deleting metadata:')
-            for md_type, members in delete.items():
+            for md_type, members in list(delete.items()):
                 for member in members:
                     self.logger.info('    {}: {}'.format(md_type, member))
             destructive_changes = self._render_xml_from_items_dict(delete)
@@ -716,7 +717,7 @@ class UninstallPackagedIncremental(UninstallPackaged):
         lines.append(u'<Package xmlns="http://soap.sforce.com/2006/04/metadata">')
 
         # Print types sections
-        md_types = items.keys()
+        md_types = list(items.keys())
         md_types.sort()
         for md_type in md_types:
             members = items[md_type]
@@ -1129,7 +1130,7 @@ class RunApexTests(BaseSalesforceToolingApiTask):
             self._debug_get_results(test_result)
         self._debug_get_logs()
         test_results = []
-        class_names = self.results_by_class_name.keys()
+        class_names = list(self.results_by_class_name.keys())
         class_names.sort()
         for class_name in class_names:
             class_id = self.classes_by_name[class_name]
@@ -1138,7 +1139,7 @@ class RunApexTests(BaseSalesforceToolingApiTask):
             if duration:
                 message += '({}s)'.format(duration)
             self.logger.info(message)
-            method_names = self.results_by_class_name[class_name].keys()
+            method_names = list(self.results_by_class_name[class_name].keys())
             method_names.sort()
             for method_name in method_names:
                 result = self.results_by_class_name[class_name][method_name]
@@ -1198,7 +1199,7 @@ class RunApexTests(BaseSalesforceToolingApiTask):
             self.results_by_class_name[test_class['Name']] = {}
         self._debug_create_trace_flag()
         self.logger.info('Queuing tests for execution...')
-        ids = self.classes_by_id.keys()
+        ids = list(self.classes_by_id.keys())
         result = self.tooling._call_salesforce(
             method='POST',
             url=self.tooling.base_url + 'runTestsAsynchronous',
@@ -1268,7 +1269,7 @@ class RunApexTests(BaseSalesforceToolingApiTask):
                     s += '  </testcase>\n'
                 else:
                     s += ' />\n'
-                f.write(unicode(s))
+                f.write(str(s))
             f.write(u'</testsuite>')
 
 run_apex_tests_debug_options = RunApexTests.task_options.copy()
@@ -1369,7 +1370,7 @@ class RunApexTestsDebug(RunApexTests):
 
     def _debug_get_logs(self):
         log_ids = "('{}')".format(
-            "','".join(str(id) for id in self.classes_by_log_id.keys()))
+            "','".join(str(id) for id in list(self.classes_by_log_id.keys())))
         result = self.tooling.query_all('SELECT Id, Application, ' +
             'DurationMilliseconds, Location, LogLength, LogUserId, ' +
             'Operation, Request, StartTime, Status ' +
@@ -1402,7 +1403,7 @@ class RunApexTestsDebug(RunApexTests):
             with io.open(log_file, mode='r', encoding='utf-8') as f:
                 method_stats = self._parse_log(class_name, f)
             # Add method stats to results_by_class_name
-            for method, info in method_stats.items():
+            for method, info in list(method_stats.items()):
                 if method not in self.results_by_class_name[class_name]:
                     # Ignore lines that aren't from a test method such as the @testSetup decorated method
                     continue
@@ -1570,7 +1571,7 @@ class RunApexTestsDebug(RunApexTests):
         # Write the json file
         json_output = self.options['json_output']
         with io.open(json_output, mode='w', encoding='utf-8') as f:
-            f.write(unicode(json.dumps(test_results)))
+            f.write(str(json.dumps(test_results)))
 
 class SOQLQuery(BaseSalesforceBulkApiTask):
     name = 'SOQLQuery'

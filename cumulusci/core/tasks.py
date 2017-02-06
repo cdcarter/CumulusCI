@@ -1,3 +1,4 @@
+from builtins import object
 import logging
 
 from cumulusci.core.exceptions import TaskRequiresSalesforceOrg
@@ -33,7 +34,7 @@ class BaseTask(object):
 
     def _validate_options(self):
         missing_required = []
-        for name, config in self.task_options.items():
+        for name, config in list(self.task_options.items()):
             if config.get('required') == True and name not in self.options:
                 missing_required.append(name)
 

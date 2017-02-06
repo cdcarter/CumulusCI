@@ -1,8 +1,10 @@
 # coding=utf-8
 
 from __future__ import print_function
+from future import standard_library
+standard_library.install_aliases()
 import datetime
-import httplib
+import http.client
 import json
 import os
 import unittest
@@ -253,10 +255,10 @@ class TestPublishingGithubReleaseNotesGenerator(unittest.TestCase, GithubApiTest
         if update:
             expected_response = self._get_expected_release(
                 body, draft, prerelease)
-            status = httplib.OK
+            status = http.client.OK
         else:
             expected_response = self._get_expected_not_found()
-            status = httplib.NOT_FOUND
+            status = http.client.NOT_FOUND
         responses.add(
             method=responses.GET,
             url=api_url,

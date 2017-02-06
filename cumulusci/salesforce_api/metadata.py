@@ -2,15 +2,21 @@
 python interface to the Salesforce Metadata API
 based on mrbelvedere/mpinstaller/mdapi.py
 '''
+from __future__ import division
 
 # TO DO
 #   - add docstrings
 #   - parse dates from SOAP response
 #   - use format() instead of %
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import object
+from past.utils import old_div
 import base64
 # import dateutil.parser
-import httplib
+import http.client
 import re
 from tempfile import TemporaryFile
 import time
@@ -101,7 +107,7 @@ class BaseMetadataApiCall(object):
             return result[0].firstChild.nodeValue
 
     def _get_check_interval(self):
-        return self.check_interval * ((self.check_num / 3) + 1)
+        return self.check_interval * ((old_div(self.check_num, 3)) + 1)
 
     def _get_response(self):
         if not self.soap_envelope_start:
@@ -196,7 +202,7 @@ class BaseMetadataApiCall(object):
         return response
 
     def _process_response_start(self, response):
-        if response.status_code == httplib.INTERNAL_SERVER_ERROR:
+        if response.status_code == http.client.INTERNAL_SERVER_ERROR:
             return response
         ids = parseString(response.content).getElementsByTagName('id')
         if ids:

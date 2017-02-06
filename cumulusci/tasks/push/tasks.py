@@ -1,3 +1,4 @@
+from builtins import str
 import time
 from datetime import datetime
 from cumulusci.tasks.salesforce import BaseSalesforceApiTask
@@ -157,7 +158,7 @@ class BaseSalesforcePushTask(BaseSalesforceApiTask):
             self.logger.info("-----------------------------------")
             self.logger.info("Failures by error type")
             self.logger.info("-----------------------------------")
-            for key, errors in failed_by_error.items():
+            for key, errors in list(failed_by_error.items()):
                 self.logger.info("    ")
                 self.logger.info("{} failed with...".format(len(errors)))
                 self.logger.info("    Error Type = {}".format(key[0]))

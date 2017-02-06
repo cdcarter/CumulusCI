@@ -107,7 +107,7 @@ class TestBaseProjectKeychain(unittest.TestCase):
     def _test_set_and_get_org(self, global_org=False):
         keychain = self.keychain_class(self.project_config, self.key)
         keychain.set_org('test', self.org_config, global_org)
-        self.assertEquals(keychain.orgs.keys(), ['test'])
+        self.assertEquals(list(keychain.orgs.keys()), ['test'])
         self.assertEquals(keychain.get_org('test').config, self.org_config.config)
 
     def test_get_org_not_found(self):
@@ -192,10 +192,10 @@ class TestEnvironmentProjectKeychain(TestBaseProjectKeychain):
         )
 
     def _clean_env(self, env):
-        for key, value in env.items():
+        for key, value in list(env.items()):
             if key.startswith(self.keychain_class.org_var_prefix):
                 del env[key]
-        for key, value in env.items():
+        for key, value in list(env.items()):
             if key.startswith(self.keychain_class.service_var_prefix):
                 del env[key]
         if self.keychain_class.app_var in env:
@@ -203,7 +203,7 @@ class TestEnvironmentProjectKeychain(TestBaseProjectKeychain):
 
     def test_get_org(self):
         keychain = self.keychain_class(self.project_config, self.key)
-        self.assertEquals(keychain.orgs.keys(), ['test'])
+        self.assertEquals(list(keychain.orgs.keys()), ['test'])
         self.assertEquals(keychain.get_org('test').config, self.org_config.config)
 
     def _test_list_orgs(self):

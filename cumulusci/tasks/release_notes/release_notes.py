@@ -1,4 +1,7 @@
-import httplib
+from future import standard_library
+standard_library.install_aliases()
+from builtins import object
+import http.client
 import re
 import os
 import requests
@@ -144,7 +147,7 @@ class GithubApiMixin(object):
         else:
             resp = requests.get(api_url, **kwargs)
 
-        if resp.status_code == httplib.NOT_FOUND:
+        if resp.status_code == http.client.NOT_FOUND:
             raise GithubApiNotFoundError(resp.content)
 
         try:

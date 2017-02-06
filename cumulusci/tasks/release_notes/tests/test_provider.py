@@ -1,6 +1,8 @@
+from future import standard_library
+standard_library.install_aliases()
 from datetime import datetime
 from datetime import timedelta
-import httplib
+import http.client
 import os
 import shutil
 import tempfile
@@ -173,7 +175,7 @@ class TestGithubChangeNotesProvider(unittest.TestCase, GithubApiTestMixin):
             method=responses.GET,
             url=api_url,
             json=expected_response,
-            status=httplib.NOT_FOUND,
+            status=http.client.NOT_FOUND,
         )
 
     def _mock_last_tag(self):

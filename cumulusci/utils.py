@@ -1,7 +1,9 @@
+from future import standard_library
+standard_library.install_aliases()
 import fnmatch
 import os
 import re
-import StringIO
+import io
 import zipfile
 
 import requests
@@ -78,7 +80,7 @@ def removeXmlElement(name,directory,file_pattern,logger=None):
 
 def download_extract_zip(url, target, subfolder=None):
     resp = requests.get(url)
-    zip_content = StringIO.StringIO(resp.content)
+    zip_content = io.StringIO(resp.content)
     zip_file = zipfile.ZipFile(zip_content)
 
     if subfolder:
@@ -94,7 +96,7 @@ def zip_subfolder(zip_src, path):
     if not path.endswith('/'):
         path = path + '/'
 
-    zip_dest = zipfile.ZipFile(StringIO.StringIO(), 'w', zipfile.ZIP_DEFLATED)
+    zip_dest = zipfile.ZipFile(io.StringIO(), 'w', zipfile.ZIP_DEFLATED)
     for name in zip_src.namelist():
         if not name.startswith(path):
             continue
@@ -120,7 +122,7 @@ def doc_task(task_name, task_config, project_config=None, org_config=None):
         defaults = task_config.options
         if not defaults:
             defaults = {}
-        for name, option in task_class.task_options.items():
+        for name, option in list(task_class.task_options.items()):
             default = defaults.get('name')
             if default:
                 default = ' **Default: {}**'.format(default)

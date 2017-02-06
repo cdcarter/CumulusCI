@@ -1,3 +1,4 @@
+from builtins import object
 from base64 import b64encode
 from zipfile import ZipFile
 from tempfile import TemporaryFile

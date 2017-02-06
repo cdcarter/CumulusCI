@@ -1,3 +1,5 @@
+from builtins import str
+from builtins import object
 import copy
 from distutils.version import LooseVersion
 import logging
@@ -31,7 +33,7 @@ class BaseFlow(object):
 
     def _get_tasks(self):
         tasks = []
-        for step_num, config in self.flow_config.tasks.items():
+        for step_num, config in list(self.flow_config.tasks.items()):
             if config['task'] == 'None':
                 continue
             tasks.append((
@@ -87,8 +89,8 @@ class BaseFlow(object):
         task_config.config['options'].update(flow_task_config['flow_config'].get('options', {}))
 
         # Handle dynamic value lookups in the format ^^task_name.attr1.attr2
-        for option, value in task_config.options.items():
-            if unicode(value).startswith('^^'):
+        for option, value in list(task_config.options.items()):
+            if str(value).startswith('^^'):
                 value_parts = value[2:].split('.')
                 parent = self._find_task_by_name(value_parts[0])
                 for attr in value_parts[1:]:
@@ -130,7 +132,7 @@ class BaseFlow(object):
         if not task.task_options:
             return config
 
-        for option_name, option_info in task.task_options.items():
+        for option_name, option_info in list(task.task_options.items()):
             config.append('  {}: {}'.format(
                 option_name,
                 task.options.get(option_name),
