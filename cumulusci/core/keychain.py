@@ -171,7 +171,7 @@ class EnvironmentProjectKeychain(BaseProjectKeychain):
 
 
 BS = 16
-pad = lambda s: s + (BS - len(s) % BS) * chr(BS - len(s) % BS)
+pad = lambda s: s + (BS - len(s) % BS) * bytes([BS - len(s) % BS])
 unpad = lambda s : s[0:-ord(s[-1])]
 
 class BaseEncryptedProjectKeychain(BaseProjectKeychain):
@@ -254,17 +254,17 @@ class EncryptedFileProjectKeychain(BaseEncryptedProjectKeychain):
         def load_files(dirname):
             for item in os.listdir(dirname):
                 if item.endswith('.org'):
-                    with open(os.path.join(dirname, item), 'r') as f_item:
+                    with open(os.path.join(dirname, item), 'rb') as f_item:
                         org_config = f_item.read()
                     org_name = item.replace('.org', '')
                     self.config['orgs'][org_name] = org_config
                 elif item.endswith('.service'):
-                    with open(os.path.join(dirname, item), 'r') as f_item:
+                    with open(os.path.join(dirname, item), 'rb') as f_item:
                         service_config = f_item.read()
                     service_name = item.replace('.service', '')
                     self.config['services'][service_name] = service_config
                 elif item == 'connected.app':
-                    with open(os.path.join(dirname, item), 'r') as f_item:
+                    with open(os.path.join(dirname, item), 'rb') as f_item:
                         app_config = f_item.read()
                     self.config['app'] = app_config
 
@@ -278,7 +278,7 @@ class EncryptedFileProjectKeychain(BaseEncryptedProjectKeychain):
             filename = os.path.join(self.project_local_dir, 'connected.app')
         else:
             filename = os.path.join(self.config_local_dir, 'connected.app')
-        with open(filename, 'w') as f_org:
+        with open(filename, 'wb') as f_org:
             f_org.write(encrypted)
         self.app = encrypted
 
@@ -287,7 +287,7 @@ class EncryptedFileProjectKeychain(BaseEncryptedProjectKeychain):
             filename = os.path.join(self.config_local_dir, '{}.org'.format(name))
         else:
             filename = os.path.join(self.project_local_dir, '{}.org'.format(name))
-        with open(filename, 'w') as f_org:
+        with open(filename, 'wb') as f_org:
             f_org.write(encrypted)
 
     def _set_encrypted_service(self, name, encrypted, project):
@@ -295,7 +295,7 @@ class EncryptedFileProjectKeychain(BaseEncryptedProjectKeychain):
             filename = os.path.join(self.project_local_dir, '{}.service'.format(name))
         else:
             filename = os.path.join(self.config_local_dir, '{}.service'.format(name))
-        with open(filename, 'w') as f_service:
+        with open(filename, 'wb') as f_service:
             f_service.write(encrypted)
 
     def _raise_org_not_found(self, name):
