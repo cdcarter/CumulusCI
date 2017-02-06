@@ -82,7 +82,7 @@ class TestCaptureSalesforceOAuth(unittest.TestCase):
 
         # verify
         self.assertEqual(o.response.json(), expected_response)
-        self.assertEqual(response.read(), 'OK')
+        self.assertEqual(response.read(), b'OK')
 
     @responses.activate
     def test_bad_request(self):

@@ -95,7 +95,7 @@ class OAuthCallbackHandler(BaseHTTPRequestHandler):
                 http_body = str(e)
         self.send_response(http_status)
         self.end_headers()
-        self.wfile.write(http_body)
+        self.wfile.write(http_body.encode('latin-1'))
 
 
 class CaptureSalesforceOAuth(object):

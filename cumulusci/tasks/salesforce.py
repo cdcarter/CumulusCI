@@ -1060,7 +1060,7 @@ class RunApexTests(BaseSalesforceToolingApiTask):
             try:
                 # Try to decode ISO-8859-1 to unicode
                 return content.decode('ISO-8859-1')
-            except UnicodeEncodeError:
+            except (UnicodeEncodeError, AttributeError):
                 # Assume content is unicode already
                 return content
 
