@@ -361,7 +361,8 @@ class GithubChangeNotesProvider(BaseChangeNotesProvider, GithubApiMixin):
 
     @property
     def end_date(self):
-        return if not self.last_tag
+        if not self.last_tag:
+            return False
         tag_date = self.last_tag_info['tag']['tagger']['date']
         return datetime.strptime(tag_date, "%Y-%m-%dT%H:%M:%SZ")
 
