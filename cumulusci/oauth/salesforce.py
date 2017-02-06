@@ -1,3 +1,4 @@
+from __future__ import print_function
 from BaseHTTPServer import BaseHTTPRequestHandler
 from BaseHTTPServer import HTTPServer
 import httplib
@@ -148,5 +149,5 @@ class CaptureSalesforceOAuth(object):
         return url
 
     def _launch_browser(self, url):
-        print 'Launching web browser for URL {}'.format(url)
+        print('Launching web browser for URL {}'.format(url))
         webbrowser.open(url, new=1)

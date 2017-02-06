@@ -1,3 +1,4 @@
+from __future__ import print_function
 import httplib
 import threading
 import time
@@ -68,7 +69,7 @@ class TestCaptureSalesforceOAuth(unittest.TestCase):
         while True:
             if o.httpd:
                 break
-            print 'waiting for o.httpd'
+            print('waiting for o.httpd')
             time.sleep(0.01)
 
         # simulate callback from browser

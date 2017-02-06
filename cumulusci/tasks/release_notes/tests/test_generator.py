@@ -1,5 +1,6 @@
 # coding=utf-8
 
+from __future__ import print_function
 import datetime
 import httplib
 import json
@@ -69,9 +70,9 @@ class TestDirectoryReleaseNotesGenerator(unittest.TestCase):
 
         content = release_notes()
         expected = "# Critical Changes\r\n\r\n* This will break everything!\r\n\r\n# Changes\r\n\r\nHere's something I did. It was really cool\r\nOh yeah I did something else too!\r\n\r\n# Issues Closed\r\n\r\n#2345\r\n#6236"
-        print expected
-        print '-------------------------------------'
-        print content
+        print(expected)
+        print('-------------------------------------')
+        print(content)
 
         self.assertEqual(content, expected)
 
