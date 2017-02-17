@@ -18,24 +18,25 @@ from cumulusci.core.tasks import BaseTask
 class Command(BaseTask):
     """ Run a shell command from a directory with environment variables.
 
-    Using the subprocess module, Command runs a shell task, and optionally
-    passes environment variables from the calling context or from task_options."""
+    Using `subprocess`, Command runs a shell task, and optionally passes
+    environment variables from the calling context or from task_options."""
     task_options = {
         'command': {
             'description': 'The command to execute',
             'required': True,
         },
         'dir': {
-            'description': 'If provided, the directory where the command should be run from.',
+            'description': 'The directory the command should be run from. '
+                           'Defaults to the current working directory.',
         },
         'env': {
-            'description': 'Environment variables to set for command. '\
-                           'Must be flat dict, either as python dict from ' \
+            'description': 'Environment variables to set for command. '
+                           'Must be flat dict, either as python dict from '
                            'YAML or as JSON string.',
         },
         'pass_env': {
-            'description': 'If False, the current environment variables will ' \
-                           'not be passed to the child process.  Defaults to True',
+            'description': 'If False, the current environment variables won\'t'
+                           ' be passed to the child process. Defaults to True',
             'required': True,
         },
     }
@@ -98,22 +99,26 @@ class Command(BaseTask):
         shell_process.wait()
         self._handle_returncode(shell_process)
 
+
 class SalesforceCommand(Command):
     """ Run a command with SF_ACCESS_TOKEN and SF_INSTANCE_URL on the environment.
 
     Automatically refreshes the access token for the selected organization and
-    sets SF_ACCESS_TOKEN and SF_INSTANCE_URL as environment variables before running
-    the shell command. """
+    sets SF_ACCESS_TOKEN and SF_INSTANCE_URL as environment variables before
+    running the shell command. """
     salesforce_task = True
 
     def _update_credentials(self):
-        self.org_config.refresh_oauth_token(self.project_config.keychain.get_connected_app())
+        self.org_config.refresh_oauth_token(
+            self.project_config.keychain.get_connected_app()
+        )
 
     def _get_env(self):
         env = super(SalesforceCommand, self)._get_env()
         env['SF_ACCESS_TOKEN'] = self.org_config.access_token
         env['SF_INSTANCE_URL'] = self.org_config.instance_url
         return env
+
 
 class SalesforceBrowserTest(SalesforceCommand):
     """ Runs a shell command that executes a browser test.
@@ -133,17 +138,18 @@ class SalesforceBrowserTest(SalesforceCommand):
 
     task_options = Command.task_options.copy()
     task_options['use_saucelabs'] = {
-        'description': 'If True, use SauceLabs to run the tests.  The ' \
-                       'SauceLabs credentials will be fetched from the ' \
-                       'saucelabs service in the keychain and passed as ' \
-                       'environment variables to the command.  ' \
+        'description': 'If True, use SauceLabs to run the tests.  The '
+                       'SauceLabs credentials will be fetched from the '
+                       'saucelabs service in the keychain and passed as '
+                       'environment variables to the command. '
                        'Defaults to False to run tests in the local browser.',
         'required': True,
     }
 
     def _init_options(self, kwargs):
         super(SalesforceBrowserTest, self)._init_options(kwargs)
-        if 'use_saucelabs' not in self.options or self.options['use_saucelabs'] == 'False':
+        if ('use_saucelabs' not in self.options or
+                self.options['use_saucelabs'] == 'False'):
             self.options['use_saucelabs'] = False
 
     def _get_env(self):
