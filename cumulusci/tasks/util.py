@@ -5,6 +5,7 @@ import time
 from cumulusci.core.tasks import BaseTask
 from cumulusci.utils import download_extract_zip
 
+
 class DownloadZip(BaseTask):
     """ Download a zip file from a URL and extract it to the filesystem.
     """
@@ -20,8 +21,9 @@ class DownloadZip(BaseTask):
             'required': True,
         },
         'subfolder': {
-            'description': 'The subfolder of the target zip to extract. ' \
-            'Defaults to extracting the root of the zip file to the destination.',
+            'description': 'The subfolder of the target zip to extract. '
+                           'Defaults to extracting the root of the zip file '
+                           'to the destination.',
         },
     }
 
@@ -37,6 +39,7 @@ class DownloadZip(BaseTask):
             self.options.get('subfolder')
         )
 
+
 class Sleep(BaseTask):
     """ Wait for the given number of seconds before succeeding. """
     name = 'Sleep'
@@ -48,6 +51,11 @@ class Sleep(BaseTask):
     }
 
     def _run_task(self):
-        self.logger.info("Sleeping for %(time)s seconds", self.options['seconds'])
+        self.logger.info(
+            "Sleeping for %(time)s seconds",
+            self.options['seconds']
+        )
+
         time.sleep(self.options['seconds'])
+
         self.logger.info("Done")
