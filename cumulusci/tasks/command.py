@@ -1,3 +1,12 @@
+""" Tasks for running shell commands (using subprocess).
+
+Tasks::
+    Command: Run a shell command with environment variables.
+    SalesforceCommand: Run a shell command with Salesforce credentials.
+    SalesforceBrowserTest: Run a browser test locally or on Saucelabs.
+
+"""
+
 import json
 import os
 import subprocess
@@ -7,7 +16,10 @@ from cumulusci.core.tasks import BaseTask
 
 
 class Command(BaseTask):
+    """ Run a shell command from a directory with environment variables.
 
+    Using the subprocess module, Command runs a shell task, and optionally
+    passes environment variables from the calling context or from task_options."""
     task_options = {
         'command': {
             'description': 'The command to execute',
@@ -17,10 +29,13 @@ class Command(BaseTask):
             'description': 'If provided, the directory where the command should be run from.',
         },
         'env': {
-            'description': 'Environment variables to set for command. Must be flat dict, either as python dict from YAML or as JSON string.',
+            'description': 'Environment variables to set for command. '\
+                           'Must be flat dict, either as python dict from ' \
+                           'YAML or as JSON string.',
         },
         'pass_env': {
-            'description': 'If False, the current environment variables will not be passed to the child process.  Defaults to True',
+            'description': 'If False, the current environment variables will ' \
+                           'not be passed to the child process.  Defaults to True',
             'required': True,
         },
     }
@@ -45,7 +60,7 @@ class Command(BaseTask):
     def _run_task(self):
         env = self._get_env()
         self._run_command(env)
-        
+
     def _get_env(self):
         if self.options['pass_env']:
             env = os.environ.copy()
@@ -57,18 +72,18 @@ class Command(BaseTask):
 
     def _process_output(self, line):
         self.logger.info(line.rstrip())
-       
-    def _handle_returncode(self, returncode): 
-        if returncode:
+
+    def _handle_returncode(self, process):
+        if process.returncode:
             message = 'Return code: {}\nstderr: {}'.format(
-                p.returncode,
-                p.stderr,
+                process.returncode,
+                process.stderr,
             )
             self.logger.error(message)
             raise CommandException(message)
 
     def _run_command(self, env):
-        p = subprocess.Popen(
+        shell_process = subprocess.Popen(
             self.options['command'],
             stdout=subprocess.PIPE,
             bufsize=1,
@@ -77,20 +92,18 @@ class Command(BaseTask):
             env=env,
             cwd=self.options.get('dir'),
         )
-        for line in iter(p.stdout.readline, ''):
+        for line in iter(shell_process.stdout.readline, ''):
             self._process_output(line)
-        p.stdout.close()
-        p.wait()
-        if p.returncode:
-            message = 'Return code: {}\nstderr: {}'.format(
-                p.returncode,
-                p.stderr,
-            )
-            self.logger.error(message)
-            raise CommandException(message)
+        shell_process.stdout.close()
+        shell_process.wait()
+        self._handle_returncode(shell_process)
 
 class SalesforceCommand(Command):
-    """ A command that automatically gets a refreshed SF_ACCESS_TOKEN and SF_INSTANCE_URL passed as env vars """
+    """ Run a command with SF_ACCESS_TOKEN and SF_INSTANCE_URL on the environment.
+
+    Automatically refreshes the access token for the selected organization and
+    sets SF_ACCESS_TOKEN and SF_INSTANCE_URL as environment variables before running
+    the shell command. """
     salesforce_task = True
 
     def _update_credentials(self):
@@ -102,21 +115,37 @@ class SalesforceCommand(Command):
         env['SF_INSTANCE_URL'] = self.org_config.instance_url
         return env
 
-task_options = Command.task_options.copy()
-task_options['use_saucelabs'] = {
-    'description': 'If True, use SauceLabs to run the tests.  The SauceLabs credentials will be fetched from the saucelabs service in the keychain and passed as environment variables to the command.  Defaults to False to run tests in the local browser.',
-    'required': True,
-}
 class SalesforceBrowserTest(SalesforceCommand):
-    """ A wrapper around browser test commands targetting a Salesforce org with support for running in local browser or on SauceLabs """
+    """ Runs a shell command that executes a browser test.
 
-    task_options = task_options
+    SalesforceBrowserTest provides a wrapper around a SalesforceCommand
+    task that allos the command to be run either locally or remotely on
+    Saucelabs. This means the same task definition can be used in a developer
+    flow and in a CI flow, running the same task in different locations.
+
+    If the use_saucelabs task option is configured, the following additional
+    variables are put into the environment:
+        SAUCE_NAME: the username configured in the saucelabs service
+        SAUCE_KEY: the api key configured in the saucelabs service
+        RUN_ON_SAUCE: always set to True
+
+    """
+
+    task_options = Command.task_options.copy()
+    task_options['use_saucelabs'] = {
+        'description': 'If True, use SauceLabs to run the tests.  The ' \
+                       'SauceLabs credentials will be fetched from the ' \
+                       'saucelabs service in the keychain and passed as ' \
+                       'environment variables to the command.  ' \
+                       'Defaults to False to run tests in the local browser.',
+        'required': True,
+    }
 
     def _init_options(self, kwargs):
         super(SalesforceBrowserTest, self)._init_options(kwargs)
         if 'use_saucelabs' not in self.options or self.options['use_saucelabs'] == 'False':
             self.options['use_saucelabs'] = False
-    
+
     def _get_env(self):
         env = super(SalesforceBrowserTest, self)._get_env()
         if self.options['use_saucelabs']:
