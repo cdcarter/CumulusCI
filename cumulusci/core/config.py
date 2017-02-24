@@ -421,13 +421,13 @@ class ScratchOrgConfig(OrgConfig):
         self.logger.info('Getting scratch org info from Salesforce DX')
 
         # Call force:org:open and parse output to get instance_url and access_token
-        command = 'heroku force:org:open -d -u {}'.format(self.username)
+        command = 'sfdx force:org:open -r --target-username {}'.format(self.username)
         p = sarge.Command(command, stdout=sarge.Capture(buffer_size=-1))
         p.run()
 
         org_info = None
         stdout_list = []
-        for line in p.stdout:
+        for line in p.stdout:  # pylint: disable=E1101
             if line.startswith('Access org'):
                 org_info = line.strip()
             stdout_list.append(line.strip())
@@ -436,13 +436,13 @@ class ScratchOrgConfig(OrgConfig):
             message = 'Return code: {}\nstdout: {}\nstderr: {}'.format(
                 p.returncode,
                 '\n'.join(stdout_list),
-                p.stderr,
+                p.stderr,  # pylint: disable=E1101
             )
             self.logger.error(message)
             raise ScratchOrgException(message)
 
         if not org_info:
-            message = 'Did not find org info in command output:\n{}'.format(p.stdout)
+            message = 'Did not find org info in command output:\n{}'.format(p.stdout)  # pylint: disable=E1101
             self.logger.error(message)
             raise ScratchOrgException(message)
 
@@ -454,7 +454,7 @@ class ScratchOrgConfig(OrgConfig):
 
         info_parts = org_info.split('following URL: ')
         if len(info_parts) == 1:
-            message = 'Did not find org info in command output:\n{}'.format(p.stdout)
+            message = 'Did not find org info in command output:\n{}'.format(p.stdout)  # pylint: disable=E1101
             self.logger.error(message)
             raise ScratchOrgException(message)
 

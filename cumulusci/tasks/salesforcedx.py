@@ -1,6 +1,7 @@
 """ Tasks for using the SalesforceDX CLI tool
 
-BaseSalesforceDXTask allows you to call the sfdx binary with options """
+BaseSalesforceDXTask allows you to call the sfdx binary with options
+CumulusCIOrgDXTask shells out with credentials from a keychain org """
 
 import sarge
 
@@ -48,4 +49,23 @@ class BaseSalesforceDXTask(BaseTask):
         self._call_salesforce_dx(
             self.options['command'],
             self.options.get('options')
+        )
+
+
+class CumulusCIOrgDXTask(BaseSalesforceDXTask):
+    """A task that shells out to SFDX with credentials from a keychain org. """
+
+    salesforce_task = True
+
+    def _run_task(self):
+        self._call_salesforce_dx(
+            'force:config:set',
+            {'instanceUrl={}'.format(self.org_config.instance_url)}
+        )
+        self._call_salesforce_dx(
+            self.options['command'],
+            '{} --target-username {}'.format(
+                self.options.get('options'),
+                self.org_config.username
+            )
         )
