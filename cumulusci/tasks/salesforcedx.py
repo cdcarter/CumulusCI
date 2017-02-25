@@ -27,8 +27,6 @@ class BaseSalesforceDXTask(BaseTask):
         if options:
             full_command += ' {}'.format(options)
 
-        full_command += ' -u {}'.format(self.org_config.username)
-
         self.logger.info('Running: %s', full_command)
         p = sarge.Command(full_command, stdout=sarge.Capture(buffer_size=-1))
         p.run()
@@ -60,12 +58,12 @@ class CumulusCIOrgDXTask(BaseSalesforceDXTask):
     def _run_task(self):
         self._call_salesforce_dx(
             'force:config:set',
-            {'instanceUrl={}'.format(self.org_config.instance_url)}
+            'instanceUrl={}'.format(self.org_config.instance_url)
         )
         self._call_salesforce_dx(
             self.options['command'],
-            '{} --target-username {}'.format(
-                self.options.get('options'),
-                self.org_config.username
+            sarge.shell_format(
+                '--deploydir packaged --targetusername {0}',
+                self.org_config.config['access_token']
             )
         )
