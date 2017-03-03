@@ -1,22 +1,26 @@
+
+import base64
+import StringIO
+
+from cumulusci.utils import zip_subfolder
+from cumulusci.salesforce_api.package_zip import InstallPackageZipBuilder
+from cumulusci.salesforce_api.metadata.deploy import ApiDeploy
+import requests
+
+
 class ApiInstallVersion(ApiDeploy):
 
     def __init__(self, task, version, purge_on_delete=False):
         self.version = version
         # Construct and set the package_zip file
         if self.version.number:
-            self.package_zip = PackageZipBuilder(
+            self.package_zip = InstallPackageZipBuilder(
                 self.version.package.namespace,
                 self.version.number).install_package()
         elif self.version.zip_url or self.version.repo_url:
             if self.version.repo_url:
                 repo_url = self.version.repo_url
                 git_ref = self.version.branch
-                if installation_step.installation.git_ref:
-                    git_ref = installation_step.installation.git_ref
-                if installation_step.installation.fork:
-                    repo_url_parts = repo_url.split('/')
-                    repo_url_parts[3] = installation_step.installation.fork
-                    repo_url = '/'.join(repo_url_parts)
                 zip_url = '%s/archive/%s.zip' % (repo_url, git_ref)
             else:
                 zip_url = self.version.zip_url

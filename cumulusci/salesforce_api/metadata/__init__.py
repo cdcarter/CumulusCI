@@ -14,6 +14,8 @@ Refactoring:
 - currently process_response is like two steps really - crack
   open SOAP request and then process response...
 
+- and handle failures.
+
 - replace % formatting statements in soapenvelopes with format {}
 
 API deploy
