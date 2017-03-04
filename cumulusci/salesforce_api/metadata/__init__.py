@@ -1,6 +1,4 @@
-""" The MDAPI Implementation """
-
-"""
+""" The MDAPI Implementation
 
 Okay, where to start. Splitting out the metadata.py file out into a module,
 one that may then hoist out base? I dunno. still. Wanna get these into seperate
@@ -27,3 +25,23 @@ API deploy
         #    self.purge_on_delete = 'false'
 
 """
+from cumulusci.salesforce_api.metadata.base import BaseMetadataApiCall
+from cumulusci.salesforce_api.metadata.deploy import ApiDeploy
+from cumulusci.salesforce_api.metadata.list_metadata import ApiListMetadata
+from cumulusci.salesforce_api.metadata.retrieve_installed_packages import (
+    ApiRetrieveInstalledPackages
+)
+from cumulusci.salesforce_api.metadata.retrieve_packaged import (
+    ApiRetrievePackaged
+)
+from cumulusci.salesforce_api.metadata.retrieve_unpackaged import (
+    ApiRetrieveUnpackaged
+)
+
+__all__ = [
+    'BaseMetadataApiCall',
+    'ApiDeploy',
+    'ApiListMetadata',
+    'ApiRetrieveInstalledPackages',
+    'ApiRetrievePackaged',
+    'ApiRetrieveUnpackaged']
