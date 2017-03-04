@@ -157,7 +157,7 @@ class BaseMetadataApiCall(object):
                 headers = self._build_headers(
                     self.soap_action_result, envelope)
                 response = self._call_mdapi(headers, envelope)
-                response = _process_response_result(response)
+                response = self._process_response_result(response)
         return response
 
     def _handle_soap_error(self, headers, envelope, refresh, response):
@@ -173,10 +173,12 @@ class BaseMetadataApiCall(object):
             faultstring = faultstring[0].firstChild.nodeValue
         else:
             faultstring = response.content
-        if faultcode == 'sf:INVALID_SESSION_ID' and self.task.org_config and self.task.org_config.refresh_token:
+        if (faultcode == 'sf:INVALID_SESSION_ID' and
+                self.task.org_config and
+                self.task.org_config.refresh_token):
             # Attempt to refresh token and recall request
             if refresh:
-                self.org_config.refresh_oauth_token()
+                self.task.org_config.refresh_oauth_token()
                 return self._call_mdapi(headers, envelope, refresh=False)
         # Log the error
         message = '{}: {}'.format(faultcode, faultstring)
@@ -222,10 +224,10 @@ class BaseMetadataApiCall(object):
         else:
             # If no done element was in the xml, fail logging the entire SOAP
             # envelope as the log
-            self._set_status('Failed', response.content, response=response)
+            self._set_status('Failed', response.content)
         return response
 
-    def _set_status(self, status, log=None, level=None, response=None):
+    def _set_status(self, status, log=None, level=None):
         if not level:
             level = 'info'
             if status == 'Failed':
