@@ -1,3 +1,5 @@
+""" Generate pazkage.zip files """
+
 from base64 import b64encode
 from zipfile import ZipFile
 from tempfile import TemporaryFile
@@ -27,7 +29,9 @@ INSTALLED_PACKAGE = """<?xml version="1.0" encoding="UTF-8"?>
   <versionNumber>{}</versionNumber>
 </InstalledPackage>"""
 
+
 class BasePackageZipBuilder(object):
+    """ Base Callable package.zip builder """
 
     def __call__(self):
         self._open_zip()
@@ -36,10 +40,12 @@ class BasePackageZipBuilder(object):
 
     def _open_zip(self):
         self.zip_file = TemporaryFile()
-        self.zip= ZipFile(self.zip_file, 'w')
+        self.zip = ZipFile(self.zip_file, 'w')
 
     def _populate_zip(self):
-        raise NotImplementedError('Subclasses need to provide their own implementation')
+        raise NotImplementedError(
+            'Subclasses need to provide their own implementation'
+        )
 
     def _write_package_xml(self, package_xml):
         self.zip.writestr('package.xml', package_xml)
@@ -52,27 +58,36 @@ class BasePackageZipBuilder(object):
         self.zip_file.seek(0)
         return b64encode(self.zip_file.read())
 
+
 class CreatePackageZipBuilder(BasePackageZipBuilder):
+    """ Callable zipbuilder that returns an empty named package """
 
     def __init__(self, name, api_version):
         if not name:
             raise ValueError('You must provide a name to create a package')
         if not api_version:
-            raise ValueError('You must provide an api_version to create a package')
-        self.name= name
-        self.api_version= api_version
+            raise ValueError(
+                'You must provide an api_version to create a package'
+            )
+        self.name = name
+        self.api_version = api_version
 
     def _populate_zip(self):
         package_xml = FULL_NAME_PACKAGE_XML.format(self.name, self.api_version)
         self._write_package_xml(package_xml)
 
-class InstallPackageZipBuilder(BasePackageZipBuilder):
 
+class InstallPackageZipBuilder(BasePackageZipBuilder):
+    """ Callable zipbuilder that installs a version of a managed package """
     def __init__(self, namespace, version):
         if not namespace:
-            raise ValueError('You must provide a namespace to install a package')
+            raise ValueError(
+                'You must provide a namespace to install a package'
+            )
         if not version:
-            raise ValueError('You must provide a version to install a package')
+            raise ValueError(
+                'You must provide a version to install a package'
+            )
         self.namespace = namespace
         self.version = version
 
@@ -86,19 +101,26 @@ class InstallPackageZipBuilder(BasePackageZipBuilder):
             installed_package
         )
 
-class DestructiveChangesZipBuilder(BasePackageZipBuilder):
 
+class DestructiveChangesZipBuilder(BasePackageZipBuilder):
+    """ Callable zipbuilder that includes a destructiveChanges file. """
     def __init__(self, destructive_changes):
         self.destructive_changes = destructive_changes
 
-    def _populate_zip(self): 
+    def _populate_zip(self):
         self._write_package_xml(EMPTY_PACKAGE_XML)
         self._write_file('destructiveChanges.xml', self.destructive_changes)
 
-class UninstallPackageZipBuilder(DestructiveChangesZipBuilder):
 
-    def __init__(self, namespace):
+class UninstallPackageZipBuilder(DestructiveChangesZipBuilder):
+    """ Callable zipbuilder that will uninstall a managed package. """
+
+    def __init__(self, namespace):  # pylint: disable=W0231
         if not namespace:
-            raise ValueError('You must provide a namespace to install a package')
+            raise ValueError(
+                'You must provide a namespace to install a package'
+            )
         self.namespace = namespace
-        self.destructive_changes = INSTALLED_PACKAGE_PACKAGE_XML.format(self.namespace)
+        self.destructive_changes = \
+            INSTALLED_PACKAGE_PACKAGE_XML.format(self.namespace)
+
