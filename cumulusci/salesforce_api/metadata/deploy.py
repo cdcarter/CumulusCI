@@ -7,6 +7,9 @@ from cumulusci.salesforce_api.exceptions import MetadataApiError
 from cumulusci.salesforce_api import soap_envelopes
 from cumulusci.salesforce_api.metadata.base import BaseMetadataApiCall
 
+def reach(nodelist):
+    """ Reach into the first node value """
+    return nodelist[0].firstChild.nodeValue
 
 class ApiDeploy(BaseMetadataApiCall):
     """ Callable API object that deploys a zipfile package to an org. """
@@ -39,7 +42,7 @@ class ApiDeploy(BaseMetadataApiCall):
     def _process_response(self, response):
         status = parseString(response.content).getElementsByTagName('status')
         if status:
-            status = status[0].firstChild.nodeValue
+            status = reach(status)
         else:
             # If no status element is in the result xml, return fail and log
             # the entire SOAP envelope in the log
@@ -62,34 +65,35 @@ class ApiDeploy(BaseMetadataApiCall):
                     'file_name': None,
                     'line_num': None,
                     'column_num': None,
-                    'problem': component_failure.getElementsByTagName('problem')[0].firstChild.nodeValue,
-                    'problem_type': component_failure.getElementsByTagName('problemType')[0].firstChild.nodeValue,
+                    'problem': reach(
+                        component_failure.getElementsByTagName('problem')
+                    ),
+                    'problem_type': reach(
+                        component_failure.getElementsByTagName('problemType')
+                    ),
                 }
                 component_type = component_failure.getElementsByTagName(
                     'componentType')
                 if component_type and component_type[0].firstChild:
-                    failure_info['component_type'] = component_type[
-                        0].firstChild.nodeValue
+                    failure_info['component_type'] = reach(component_type)
                 file_name = component_failure.getElementsByTagName('fullName')
                 if file_name and file_name[0].firstChild:
-                    failure_info['file_name'] = file_name[
-                        0].firstChild.nodeValue
+                    failure_info['file_name'] = reach(file_name)
                 if not failure_info['file_name']:
                     file_name = component_failure.getElementsByTagName(
-                        'fileName')
+                        'fileName'
+                    )
                     if file_name and file_name[0].firstChild:
-                        failure_info['file_name'] = file_name[
-                            0].firstChild.nodeValue
+                        failure_info['file_name'] = reach(file_name)
 
                 line_num = component_failure.getElementsByTagName('lineNumber')
                 if line_num and line_num[0].firstChild:
-                    failure_info['line_num'] = line_num[0].firstChild.nodeValue
+                    failure_info['line_num'] = reach(line_num)
 
                 column_num = component_failure.getElementsByTagName(
                     'columnNumber')
                 if column_num and column_num[0].firstChild:
-                    failure_info['column_num'] = column_num[
-                        0].firstChild.nodeValue
+                    failure_info['column_num'] = reach(column_num)
 
                 created = component_failure.getElementsByTagName(
                     'created')[0].firstChild.nodeValue == 'true'
@@ -136,12 +140,12 @@ class ApiDeploy(BaseMetadataApiCall):
                 # Get needed values from subelements
                 namespace = failure.getElementsByTagName('namespace')
                 if namespace and namespace[0].firstChild:
-                    namespace = namespace[0].firstChild.nodeValue
+                    namespace = reach(namespace)
                 else:
                     namespace = None
                 stacktrace = failure.getElementsByTagName('stackTrace')
                 if stacktrace and stacktrace[0].firstChild:
-                    stacktrace = stacktrace[0].firstChild.nodeValue
+                    stacktrace = reach(stacktrace)
                 else:
                     stacktrace = None
                 message = ['Apex Test Failure: ', ]

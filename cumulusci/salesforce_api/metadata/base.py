@@ -1,22 +1,20 @@
-
-import base64
+""" Base class for Metadata API Operations with a Callable Interface """
 import httplib
 import re
 import time
 from xml.dom.minidom import parseString
-from zipfile import ZipFile
-import StringIO
 
 import requests
 
-from cumulusci.salesforce_api import soap_envelopes
-from cumulusci.core.exceptions import ApexTestException
-from cumulusci.utils import zip_subfolder
-from cumulusci.salesforce_api.exceptions import MetadataComponentFailure
 from cumulusci.salesforce_api.exceptions import MetadataApiError
 
 
 class BaseMetadataApiCall(object):
+    """ BaseMetadataApiCall provides the basic SOAP logic for an mdAPI call.
+
+    Subclass and provide an envelope and action, as well as a
+    _process_response method.
+    """
     check_interval = 1
     soap_envelope_start = None
     soap_envelope_status = None

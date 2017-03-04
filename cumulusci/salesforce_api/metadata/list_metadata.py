@@ -1,4 +1,14 @@
+""" List metadata """
+
+from xml.dom.minidom import parseString
+
+
+from cumulusci.salesforce_api import soap_envelopes
+from cumulusci.salesforce_api.metadata.base import BaseMetadataApiCall
+
+
 class ApiListMetadata(BaseMetadataApiCall):
+    """ Callable API class for listing metadata of a type. """
     soap_envelope_start = soap_envelopes.LIST_METADATA
     soap_action_start = 'listMetadata'
 
@@ -35,10 +45,10 @@ class ApiListMetadata(BaseMetadataApiCall):
             'type',
         ]
         # These tags will be interpreted into dates
-        parse_dates = [
-            'createdDate',
-            'lastModifiedDate',
-        ]
+        # parse_dates = [
+        #    'createdDate',
+        #    'lastModifiedDate',
+        # ]
         for result in parseString(
                 response.content).getElementsByTagName('result'):
             result_data = {}
