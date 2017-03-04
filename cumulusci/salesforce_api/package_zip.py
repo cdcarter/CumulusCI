@@ -2,7 +2,7 @@
 
 from base64 import b64encode
 from zipfile import ZipFile
-from tempfile import TemporaryFile
+from StringIO import StringIO
 
 INSTALLED_PACKAGE_PACKAGE_XML = """<?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://soap.sforce.com/2006/04/metadata">
@@ -39,7 +39,7 @@ class BasePackageZipBuilder(object):
         return self._encode_zip()
 
     def _open_zip(self):
-        self.zip_file = TemporaryFile()
+        self.zip_file = StringIO()
         self.zip = ZipFile(self.zip_file, 'w')
 
     def _populate_zip(self):
