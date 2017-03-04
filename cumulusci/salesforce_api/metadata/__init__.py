@@ -24,6 +24,14 @@ API deploy
         # if org_type.find('Sandbox') == -1 and org_type != 'Developer Edition'
         #    self.purge_on_delete = 'false'
 
+list metadata:
+            # Parse dates
+            # FIXME: This was breaking things
+            # for key in parse_dates:
+            #    if result_data[key]:
+            #        result_data[key] = dateutil.parser.parse(result_data[key])
+
+
 """
 from cumulusci.salesforce_api.metadata.base import BaseMetadataApiCall
 from cumulusci.salesforce_api.metadata.deploy import ApiDeploy

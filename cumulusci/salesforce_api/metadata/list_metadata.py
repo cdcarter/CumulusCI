@@ -56,7 +56,7 @@ class ApiListMetadata(BaseMetadataApiCall):
             for tag in tags:
                 result_data[tag] = self._get_element_value(result, tag)
             # Parse dates
-            # FIXME: This was breaking things
+            # : This was breaking things
             # for key in parse_dates:
             #    if result_data[key]:
             #        result_data[key] = dateutil.parser.parse(result_data[key])
